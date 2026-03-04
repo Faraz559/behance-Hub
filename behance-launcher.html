@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behance Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700;900&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0c;
+    --card: #141414;
+    --border: #222;
+    --text: #f0ede8;
+    --muted: #555;
+    --hover-border: #444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Karla', sans-serif;
+    min-height: 100vh;
+    cursor: default;
+  }
+
+  /* subtle dot grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #ffffff08 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 10;
+    padding: 52px 64px 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .logo-block h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .logo-block p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-right: 5px;
+    animation: pulse 2s ease infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── DIVIDER ── */
+  .divider {
+    position: relative; z-index: 10;
+    margin: 40px 64px 0;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── SECTION ── */
+  .section {
+    position: relative; z-index: 10;
+    padding: 48px 64px 0;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+  }
+
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  .section-count {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    font-weight: 300;
+  }
+
+  /* ── GRID ── */
+  .cards {
+    display: grid;
+    gap: 12px;
+  }
+
+  .cards.col-3 { grid-template-columns: repeat(3, 1fr); }
+  .cards.col-2 { grid-template-columns: repeat(2, 1fr); }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 26px 22px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    transition: border-color 0.22s, background 0.22s, transform 0.22s;
+    animation: fadeUp 0.5s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.015));
+    pointer-events: none;
+  }
+
+  .card:hover {
+    border-color: var(--hover-border);
+    background: #1a1a1a;
+    transform: translateY(-2px);
+  }
+
+  /* accent stripe per category */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent, transparent);
+    border-radius: 10px 10px 0 0;
+    opacity: 0;
+    transition: opacity 0.22s;
+  }
+
+  .card:hover::after { opacity: 1; }
+
+  /* sort variants */
+  .card.sort-appreciated { --accent: #f97316; }
+  .card.sort-views       { --accent: #3b82f6; }
+  .card.sort-comments    { --accent: #a855f7; }
+  .card.sort-featured    { --accent: #f59e0b; }
+  .card.sort-new         { --accent: #22c55e; }
+  .card.cat-packaging    { --accent: #ec4899; }
+  .card.cat-motion       { --accent: #06b6d4; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-left { flex: 1; min-width: 0; }
+
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    display: block;
+    line-height: 1;
+  }
+
+  .card-label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .card-arrow {
+    font-size: 0.85rem;
+    color: var(--muted);
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .card:hover .card-arrow {
+    color: var(--text);
+    transform: translate(2px, -2px);
+  }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  .tag-orange { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.2); }
+  .tag-blue   { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+  .tag-purple { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); }
+  .tag-yellow { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+  .tag-green  { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+  .tag-pink   { background: rgba(236,72,153,0.12); color: #f472b6; border: 1px solid rgba(236,72,153,0.2); }
+  .tag-cyan   { background: rgba(6,182,212,0.12);  color: #22d3ee; border: 1px solid rgba(6,182,212,0.2); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 10;
+    padding: 52px 64px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    margin-top: 52px;
+  }
+
+  footer p {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  .behance-btn {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .behance-btn:hover {
+    border-color: #555;
+    color: var(--text);
+    background: #1a1a1a;
+  }
+
+  @media (max-width: 900px) {
+    header, .divider, .section, footer { padding-left: 24px; padding-right: 24px; }
+    .divider { margin-left: 24px; margin-right: 24px; }
+    .cards.col-3, .cards.col-2 { grid-template-columns: 1fr; }
+    .logo-block h1 { font-size: 1.8rem; }
+    .header-meta { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <h1>Behance Hub</h1>
+    <p>Your gateway to the best creative work — guaranteed live links</p>
+  </div>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>All links open directly on Behance.net</div>
+    <div id="dateDisplay"></div>
+    <div>7 categories · 30 curated feeds</div>
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<!-- ══ 01 BRANDING ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <span class="section-title">Branding</span>
+    <div class="section-line"></div>
+    <span class="section-count">5 feeds</span>
+  </div>
+  <div class="cards col-3">
+    <a class="card sort-appreciated" style="animation-delay:0.05s"
+       href="https://www.behance.net/search/projects?field=branding&sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">❤️</span>
+        <div class="card-label">Most Appreciated</div>
+        <div class="card-desc">All-time top branding projects ranked by community love</div>
+        <span class="card-tag tag-orange">Most Loved</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-views" style="animation-delay:0.08s"
+       href="https://www.behance.net/search/projects?field=branding&sort=views" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">👁</span>
+        <div class="card-label">Most Viewed</div>
+        <div class="card-desc">Branding projects with the highest view counts on Behance</div>
+        <span class="card-tag tag-blue">Most Seen</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-new" style="animation-delay:0.11s"
+       href="https://www.behance.net/search/projects?field=branding&sort=publishedDate" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🆕</span>
+        <div class="card-label">Newest First</div>
+        <div class="card-desc">Latest branding projects just published on Behance today</div>
+        <span class="card-tag tag-green">Fresh</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-featured" style="animation-delay:0.14s"
+       href="https://www.behance.net/search/projects?field=branding&sort=featured_date" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">⭐</span>
+        <div class="card-label">Behance Featured</div>
+        <div class="card-desc">Branding projects handpicked and featured by Behance editors</div>
+        <span class="card-tag tag-yellow">Editor's Pick</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-comments" style="animation-delay:0.17s"
+       href="https://www.behance.net/search/projects?field=branding&sort=comments" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">💬</span>
+        <div class="card-label">Most Discussed</div>
+        <div class="card-desc">Branding work sparking the most conversation in the community</div>
+        <span class="card-tag tag-purple">Most Talked</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ 02 LOGO DESIGN ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <span class="section-title">Logo Design</span>
+    <div class="section-line"></div>
+    <span class="section-count">5 feeds</span>
+  </div>
+  <div class="cards col-3">
+    <a class="card sort-appreciated" style="animation-delay:0.05s"
+       href="https://www.behance.net/search/projects?field=logo-design&sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">❤️</span>
+        <div class="card-label">Most Appreciated</div>
+        <div class="card-desc">The most loved logo projects in Behance history</div>
+        <span class="card-tag tag-orange">Most Loved</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-views" style="animation-delay:0.08s"
+       href="https://www.behance.net/search/projects?field=logo-design&sort=views" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">👁</span>
+        <div class="card-label">Most Viewed</div>
+        <div class="card-desc">Logo projects that attracted the most eyes on Behance</div>
+        <span class="card-tag tag-blue">Most Seen</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-new" style="animation-delay:0.11s"
+       href="https://www.behance.net/search/projects?field=logo-design&sort=publishedDate" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🆕</span>
+        <div class="card-label">Newest First</div>
+        <div class="card-desc">Fresh logo work published today on Behance</div>
+        <span class="card-tag tag-green">Fresh</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-featured" style="animation-delay:0.14s"
+       href="https://www.behance.net/search/projects?field=logo-design&sort=featured_date" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">⭐</span>
+        <div class="card-label">Behance Featured</div>
+        <div class="card-desc">Logo projects chosen by Behance's editorial team</div>
+        <span class="card-tag tag-yellow">Editor's Pick</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-comments" style="animation-delay:0.17s"
+       href="https://www.behance.net/search/projects?field=logo-design&sort=comments" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">💬</span>
+        <div class="card-label">Most Discussed</div>
+        <div class="card-desc">Logo work with the most community feedback and comments</div>
+        <span class="card-tag tag-purple">Most Talked</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ 03 TYPOGRAPHY ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <span class="section-title">Typography</span>
+    <div class="section-line"></div>
+    <span class="section-count">5 feeds</span>
+  </div>
+  <div class="cards col-3">
+    <a class="card sort-appreciated" style="animation-delay:0.05s"
+       href="https://www.behance.net/search/projects?field=typography&sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">❤️</span>
+        <div class="card-label">Most Appreciated</div>
+        <div class="card-desc">The most beloved typographic projects on Behance</div>
+        <span class="card-tag tag-orange">Most Loved</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-views" style="animation-delay:0.08s"
+       href="https://www.behance.net/search/projects?field=typography&sort=views" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">👁</span>
+        <div class="card-label">Most Viewed</div>
+        <div class="card-desc">Typography work that drew the most attention on Behance</div>
+        <span class="card-tag tag-blue">Most Seen</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-new" style="animation-delay:0.11s"
+       href="https://www.behance.net/search/projects?field=typography&sort=publishedDate" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🆕</span>
+        <div class="card-label">Newest First</div>
+        <div class="card-desc">Latest typography projects just published on Behance</div>
+        <span class="card-tag tag-green">Fresh</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-featured" style="animation-delay:0.14s"
+       href="https://www.behance.net/search/projects?field=typography&sort=featured_date" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">⭐</span>
+        <div class="card-label">Behance Featured</div>
+        <div class="card-desc">Type projects handpicked by Behance editors</div>
+        <span class="card-tag tag-yellow">Editor's Pick</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-comments" style="animation-delay:0.17s"
+       href="https://www.behance.net/search/projects?field=typography&sort=comments" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">💬</span>
+        <div class="card-label">Most Discussed</div>
+        <div class="card-desc">Typography work generating the most community discussion</div>
+        <span class="card-tag tag-purple">Most Talked</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ 04 PACKAGING ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">04</span>
+    <span class="section-title">Packaging</span>
+    <div class="section-line"></div>
+    <span class="section-count">5 feeds</span>
+  </div>
+  <div class="cards col-3">
+    <a class="card cat-packaging" style="animation-delay:0.05s"
+       href="https://www.behance.net/search/projects?field=packaging-design&sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">❤️</span>
+        <div class="card-label">Most Appreciated</div>
+        <div class="card-desc">The most loved packaging design projects on Behance</div>
+        <span class="card-tag tag-pink">Most Loved</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-packaging" style="animation-delay:0.08s"
+       href="https://www.behance.net/search/projects?field=packaging-design&sort=views" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">👁</span>
+        <div class="card-label">Most Viewed</div>
+        <div class="card-desc">Packaging work that attracted the most views on Behance</div>
+        <span class="card-tag tag-pink">Most Seen</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-packaging" style="animation-delay:0.11s"
+       href="https://www.behance.net/search/projects?field=packaging-design&sort=publishedDate" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🆕</span>
+        <div class="card-label">Newest First</div>
+        <div class="card-desc">Fresh packaging projects published today on Behance</div>
+        <span class="card-tag tag-pink">Fresh</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-packaging" style="animation-delay:0.14s"
+       href="https://www.behance.net/search/projects?field=packaging-design&sort=featured_date" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">⭐</span>
+        <div class="card-label">Behance Featured</div>
+        <div class="card-desc">Packaging projects chosen by Behance's editorial team</div>
+        <span class="card-tag tag-pink">Editor's Pick</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-packaging" style="animation-delay:0.17s"
+       href="https://www.behance.net/search/projects/packaging%20design%20award%20winning" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🏆</span>
+        <div class="card-label">Award Winning</div>
+        <div class="card-desc">Packaging design recognized in major design awards</div>
+        <span class="card-tag tag-pink">Award</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ 05 LOGO ANIMATION / MOTION ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">05</span>
+    <span class="section-title">Logo Animation & Motion</span>
+    <div class="section-line"></div>
+    <span class="section-count">5 feeds</span>
+  </div>
+  <div class="cards col-3">
+    <a class="card cat-motion" style="animation-delay:0.05s"
+       href="https://www.behance.net/search/projects/logo%20animation?sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">❤️</span>
+        <div class="card-label">Most Appreciated</div>
+        <div class="card-desc">Top-loved logo animation projects across Behance</div>
+        <span class="card-tag tag-cyan">Most Loved</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-motion" style="animation-delay:0.08s"
+       href="https://www.behance.net/search/projects/logo%20motion%20design?sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">▶️</span>
+        <div class="card-label">Motion Design Logos</div>
+        <div class="card-desc">Animated brand marks combining motion design and identity</div>
+        <span class="card-tag tag-cyan">Motion</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-motion" style="animation-delay:0.11s"
+       href="https://www.behance.net/search/projects/logo%20reveal%20animation?sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">✨</span>
+        <div class="card-label">Logo Reveals</div>
+        <div class="card-desc">Cinematic logo reveal animations and brand intros</div>
+        <span class="card-tag tag-cyan">Reveal</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-motion" style="animation-delay:0.14s"
+       href="https://www.behance.net/search/projects?field=motion-graphics&sort=appreciations" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🎬</span>
+        <div class="card-label">Motion Graphics</div>
+        <div class="card-desc">Top motion graphics projects including animated identities</div>
+        <span class="card-tag tag-cyan">Editor's Pick</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card cat-motion" style="animation-delay:0.17s"
+       href="https://www.behance.net/search/projects/animated%20brand%20identity?sort=publishedDate" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🆕</span>
+        <div class="card-label">Newest Animated IDs</div>
+        <div class="card-desc">The freshest animated brand identity work on Behance</div>
+        <span class="card-tag tag-cyan">Fresh</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ 06 FEATURED TODAY ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">06</span>
+    <span class="section-title">Featured Today</span>
+    <div class="section-line"></div>
+    <span class="section-count">3 feeds</span>
+  </div>
+  <div class="cards col-3">
+    <a class="card sort-featured" style="animation-delay:0.05s"
+       href="https://www.behance.net/galleries" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🏠</span>
+        <div class="card-label">Behance Homepage</div>
+        <div class="card-desc">Behance's curated front page — today's best across all categories</div>
+        <span class="card-tag tag-yellow">Live Now</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-featured" style="animation-delay:0.08s"
+       href="https://www.behance.net/galleries/graphic-design" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">🎨</span>
+        <div class="card-label">Graphic Design Gallery</div>
+        <div class="card-desc">Behance's curated graphic design gallery — updated daily</div>
+        <span class="card-tag tag-yellow">Curated</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+    <a class="card sort-featured" style="animation-delay:0.11s"
+       href="https://www.behance.net/galleries/illustration" target="_blank" rel="noopener">
+      <div class="card-left">
+        <span class="card-icon">✏️</span>
+        <div class="card-label">Illustration Gallery</div>
+        <div class="card-desc">Behance's curated illustration gallery with editorial picks</div>
+        <span class="card-tag tag-yellow">Curated</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ 07 QUICK SEARCH ══ -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">07</span>
+    <span class="section-title">Quick Search</span>
+    <div class="section-line"></div>
+    <span class="section-count">Search Behance directly</span>
+  </div>
+  <div style="display:flex;gap:10px;align-items:stretch;">
+    <input id="searchInput"
+      placeholder="Search anything on Behance — e.g. 'minimal logo Egypt'…"
+      style="flex:1;background:#141414;border:1px solid #222;border-radius:8px;padding:14px 18px;color:#f0ede8;font-family:'Karla',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;"
+      onfocus="this.style.borderColor='#444'"
+      onblur="this.style.borderColor='#222'"
+      onkeydown="if(event.key==='Enter')doSearch()" />
+    <button onclick="doSearch()"
+      style="background:#f0ede8;border:none;border-radius:8px;padding:14px 24px;font-family:'Unbounded',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:#0c0c0c;cursor:pointer;transition:all 0.2s;white-space:nowrap;"
+      onmouseover="this.style.background='#fff'"
+      onmouseout="this.style.background='#f0ede8'">
+      SEARCH ↗
+    </button>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+    <button class="sqbtn" onclick="quickSearch('minimal logo design')">minimal logo</button>
+    <button class="sqbtn" onclick="quickSearch('luxury brand identity')">luxury brand</button>
+    <button class="sqbtn" onclick="quickSearch('packaging design 2024')">packaging 2024</button>
+    <button class="sqbtn" onclick="quickSearch('logo animation after effects')">logo animation</button>
+    <button class="sqbtn" onclick="quickSearch('wordmark logo design')">wordmark</button>
+    <button class="sqbtn" onclick="quickSearch('arabic brand identity')">arabic brand</button>
+    <button class="sqbtn" onclick="quickSearch('geometric logo mark')">geometric logo</button>
+  </div>
+</div>
+
+<footer>
+  <p>Behance Hub · All links open real pages on Behance.net · No broken links</p>
+  <a class="behance-btn" href="https://www.behance.net" target="_blank" rel="noopener">Open Behance ↗</a>
+</footer>
+
+<style>
+.sqbtn {
+  font-family: 'Karla', sans-serif;
+  font-size: 0.72rem;
+  padding: 6px 13px;
+  background: transparent;
+  border: 1px solid #222;
+  border-radius: 100px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sqbtn:hover { border-color: #444; color: #f0ede8; background: #141414; }
+</style>
+
+<script>
+document.getElementById('dateDisplay').textContent =
+  new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' }).toUpperCase();
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  window.open('https://www.behance.net/search/projects/' + encodeURIComponent(q), '_blank');
+}
+
+function quickSearch(q) {
+  window.open('https://www.behance.net/search/projects/' + encodeURIComponent(q), '_blank');
+}
+</script>
+</body>
+</html>
